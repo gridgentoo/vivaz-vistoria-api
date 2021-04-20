@@ -52,11 +52,10 @@ async fn get_agendar_horario(
     l.push(String::from(init.to_owned() + "::" + &end));
 
     let _= rem_list(&data,map_repo_list_full(kd,l.clone()));
-    let set = set_list(&data, map_repo_list_full(ki,l));
-    producer();
+    let set = set_list(&data, map_repo_list_full(ki,l.clone()));
+    producer(String::from(l[0].clone()));
     match set{
         Ok(_)=>{
-
             return HttpResponse::Ok().body("Success");
         }
         Err(_)=>{

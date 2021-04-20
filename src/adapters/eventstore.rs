@@ -3,7 +3,7 @@ use rdkafka::producer::{BaseProducer, BaseRecord, Producer};
 use std::time::Duration;
 
 
-pub(crate) fn producer(){
+pub(crate) fn producer(agenda: String){
 
     let producer: BaseProducer = ClientConfig::new()
         .set("bootstrap.servers", "localhost:9092")
@@ -12,8 +12,8 @@ pub(crate) fn producer(){
 
     producer.send(
         BaseRecord::to("vivaz-agendamentos")
-            .payload("this is the payload")
-            .key("and this is a key"),
+            .payload(&agenda)
+            .key("usuario: John Doe"),
     ).expect("Failed to enqueue");
 
 // Poll at regular intervals to process all the asynchronous delivery events.
