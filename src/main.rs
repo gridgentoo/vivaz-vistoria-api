@@ -4,12 +4,13 @@ mod domain;
 mod service;
 use crate::configs::reader_cfg::{RedisConfig, SettingsReader};
 
-use crate::service::list_service::{get_list, map_repo_list, set_list, rem_list, map_repo_list_full};
+use crate::service::list_service::{get_list, map_repo_list, set_list, rem_list, map_repo_list_full, map_payload_to_repo_list};
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 
 use serde::{Deserialize, Serialize};
-use crate::domain::responders::List;
+use crate::domain::{responders::List, request::Message};
 use crate::adapters::eventstore::producer;
+use regex::Regex;
 
 #[macro_use]
 extern crate lazy_static;
@@ -88,9 +89,19 @@ async fn inserir_orarios_disponiveis(
     }
 }
 
-#[get("/{id}/{name}/index.html")]
-async fn index(web::Path((id, name)): web::Path<(u32, String)>) -> impl Responder {
-    format!("Hello {}! id:{}", name, id)
+async fn set_key(
+    data: web::Data<&RedisConfig>,
+    param: web::Query<Parameters>,
+    path: web::Path<String>,
+    info: web::Json<Message>,
+) -> HttpResponse {
+
+    let key: String = get_key_from_path(path.to_string());
+    match param.tip.as_str() {
+        "list" => set_list(&data, map_payload_to_repo_list(&info, key)).unwrap(),
+        _ => {}
+    };
+    HttpResponse::NoContent().body("")
 }
 
 #[actix_web::main]
@@ -99,7 +110,9 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new().data(redis_config)
-            .service(index)
+            .service(web::resource("/api/keys/{path:.*}")
+                .route(web::put().to(set_key))
+            )
             .route("/api/scheduler/disponibilidade/{mes}/{ano}", web::get().to(get_horarios_disponiveis))
             .route("/api/scheduler/agendamento/{mes}/{ano}/{init}/{end}", web::put().to(get_agendar_horario))
             .route("/api/scheduler/massa/{mes}/{ano}/{init}/{end}", web::put().to(inserir_orarios_disponiveis))
@@ -116,4 +129,8 @@ pub struct ReturnList{
     list: Vec<String>
 }
 
-
+fn get_key_from_path(s: String) -> String {
+    let re = Regex::new(r"/").unwrap();
+    let result = re.replace_all(s.as_str(), "::");
+    result.to_string()
+}

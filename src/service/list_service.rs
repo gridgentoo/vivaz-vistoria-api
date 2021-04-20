@@ -2,6 +2,7 @@
 use crate::configs::reader_cfg::RedisConfig;
 use crate::adapters::repository::{RepoList, RepoClient};
 
+use crate::domain::request::{Message};
 use redis::{ RedisError};
 
 pub fn get_list(settings: &RedisConfig, req: RepoList) -> Vec<String>{
@@ -48,6 +49,15 @@ pub fn map_repo_list_full( k:String, v: Vec<String>) ->RepoList{
         value: v,
         key: k,
         ttl: 0
+    }
+}
+pub fn map_payload_to_repo_list(m: &Message, k:String) ->RepoList{
+    let v:Vec<String>= m.m_list.clone().unwrap();
+
+    RepoList{
+        value: v,
+        key: k,
+        ttl: m.ttl.clone()
     }
 }
 

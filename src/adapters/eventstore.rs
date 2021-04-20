@@ -11,7 +11,7 @@ pub(crate) fn producer(){
         .expect("Producer creation error");
 
     producer.send(
-        BaseRecord::to("enge-corp-transac-request")
+        BaseRecord::to("vivaz-agendamentos")
             .payload("this is the payload")
             .key("and this is a key"),
     ).expect("Failed to enqueue");
