@@ -1,3 +1,10 @@
+Как использовать несколько сертификаты с BaseProducer?
+https://docs.google.com/document/d/1QiWZRbovwN4_SkhiNXP04E688f2Nv-erEACQubmzGfI/edit
+
+Оригинальный код vivaz-vistoria-api
+https://github.com/rogeriob2br/vivaz-vistoria-api/blob/650b9c0624cd8b8ef479f5d914d24c59912a3f5c/src/adapters/eventstore.rs
+
+
 #Instruções para execução
 ----------------------------------------------------
 ###1 - Pré-requisitos
